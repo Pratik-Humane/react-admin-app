@@ -4,11 +4,11 @@ import useAuth from 'app/hooks/useAuth'
 import useSettings from 'app/hooks/useSettings'
 import { styled, useTheme, Box } from '@mui/system'
 import { Span } from '../../../components/Typography'
-import { MatxMenu, MatxSearchBox } from 'app/components'
-import ShoppingCart from '../../ShoppingCart/ShoppingCart'
+import { MatxMenu } from 'app/components'
 import NotificationBar from '../../NotificationBar/NotificationBar'
 import { themeShadows } from 'app/components/MatxTheme/themeColors'
-import { NotificationProvider } from 'app/contexts/NotificationContext'
+import { connect } from 'react-redux'
+import { logoutUser } from '../../../redux/actions/UserAction'
 import {
     Icon,
     IconButton,
@@ -77,17 +77,11 @@ const StyledItem = styled(MenuItem)(({ theme }) => ({
     },
 }))
 
-const IconBox = styled('div')(({ theme }) => ({
-    display: 'inherit',
-    [theme.breakpoints.down('md')]: {
-        display: 'none !important',
-    },
-}))
 
-const Layout1Topbar = () => {
+const Layout1Topbar = ({ user, logoutUser }) => {
     const theme = useTheme()
     const { settings, updateSettings } = useSettings()
-    const { logout, user } = useAuth()
+    const { logout } = useAuth()
     const isMdScreen = useMediaQuery(theme.breakpoints.down('md'))
 
     const updateSidebarMode = (sidebarSettings) => {
@@ -122,35 +116,15 @@ const Layout1Topbar = () => {
                     <StyledIconButton onClick={handleSidebarToggle}>
                         <Icon>menu</Icon>
                     </StyledIconButton>
-
-                    <IconBox>
-                        <StyledIconButton>
-                            <Icon>mail_outline</Icon>
-                        </StyledIconButton>
-
-                        <StyledIconButton>
-                            <Icon>web_asset</Icon>
-                        </StyledIconButton>
-
-                        <StyledIconButton>
-                            <Icon>star_outline</Icon>
-                        </StyledIconButton>
-                    </IconBox>
                 </Box>
                 <Box display="flex" alignItems="center">
-                    <MatxSearchBox />
-                    <NotificationProvider>
-                        <NotificationBar />
-                    </NotificationProvider>
-
-                    <ShoppingCart />
-
+                    <NotificationBar />
                     <MatxMenu
                         menuButton={
                             <UserMenu>
                                 <Hidden xsDown>
                                     <Span>
-                                        Hi <strong>{user.name}</strong>
+                                        <strong>{user.username}</strong>
                                     </Span>
                                 </Hidden>
                                 <Avatar
@@ -167,7 +141,7 @@ const Layout1Topbar = () => {
                             </Link>
                         </StyledItem>
                         <StyledItem>
-                            <Link to="/page-layouts/user-profile">
+                            <Link to="/app/user-profile">
                                 <Icon> person </Icon>
                                 <Span> Profile </Span>
                             </Link>
@@ -176,7 +150,10 @@ const Layout1Topbar = () => {
                             <Icon> settings </Icon>
                             <Span> Settings </Span>
                         </StyledItem>
-                        <StyledItem onClick={logout}>
+                        <StyledItem onClick={() => {
+                            logout()
+                            logoutUser()
+                        }}>
                             <Icon> power_settings_new </Icon>
                             <Span> Logout </Span>
                         </StyledItem>
@@ -187,4 +164,4 @@ const Layout1Topbar = () => {
     )
 }
 
-export default React.memo(Layout1Topbar)
+export default connect(({ user }) => ({ user }), { logoutUser })(React.memo(Layout1Topbar))

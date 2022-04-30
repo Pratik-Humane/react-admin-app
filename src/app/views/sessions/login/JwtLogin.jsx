@@ -53,8 +53,8 @@ const JwtLogin = () => {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [userInfo, setUserInfo] = useState({
-        email: 'jason@ui-lib.com',
-        password: 'dummyPass',
+        email: '',
+        password: '',
     })
     const [message, setMessage] = useState('')
     const { login } = useAuth()
@@ -75,7 +75,6 @@ const JwtLogin = () => {
             await login(userInfo.email, userInfo.password)
             navigate('/')
         } catch (e) {
-            console.log(e)
             setMessage(e.message)
             setLoading(false)
         }
@@ -95,6 +94,11 @@ const JwtLogin = () => {
                     </Grid>
                     <Grid item lg={7} md={7} sm={7} xs={12}>
                         <ContentBox>
+                            {message && (
+                                <Paragraph sx={{ color: textError, marginBottom: 2 }}>
+                                    {message}
+                                </Paragraph>
+                            )}
                             <ValidatorForm onSubmit={handleFormSubmit}>
                                 <TextValidator
                                     sx={{ mb: 3, width: '100%' }}
@@ -146,12 +150,6 @@ const JwtLogin = () => {
                                     label="Remeber me"
                                 />
 
-                                {message && (
-                                    <Paragraph sx={{ color: textError }}>
-                                        {message}
-                                    </Paragraph>
-                                )}
-
                                 <FlexBox mb={2} flexWrap="wrap">
                                     <Box position="relative">
                                         <Button
@@ -173,7 +171,7 @@ const JwtLogin = () => {
                                     <Button
                                         sx={{ textTransform: 'capitalize' }}
                                         onClick={() =>
-                                            navigate('/session/signup')
+                                            navigate('/auth/signup')
                                         }
                                     >
                                         Sign up
@@ -182,7 +180,7 @@ const JwtLogin = () => {
                                 <Button
                                     sx={{ color: textPrimary }}
                                     onClick={() =>
-                                        navigate('/session/forgot-password')
+                                        navigate('/auth/forgot-password')
                                     }
                                 >
                                     Forgot password?

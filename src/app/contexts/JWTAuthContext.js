@@ -2,11 +2,14 @@ import React, { createContext, useEffect, useReducer } from 'react'
 import jwtDecode from 'jwt-decode'
 import axios from 'axios.js'
 import { MatxLoading } from 'app/components'
-
+import { API_URL } from './constants'
 const initialState = {
     isAuthenticated: false,
     isInitialised: false,
     user: null,
+    message: '',
+    forgotPassMessage: '',
+    resetPassMessage: '',
 }
 
 const isValidToken = (accessToken) => {
@@ -33,7 +36,6 @@ const reducer = (state, action) => {
     switch (action.type) {
         case 'INIT': {
             const { isAuthenticated, user } = action.payload
-
             return {
                 ...state,
                 isAuthenticated,
@@ -43,7 +45,6 @@ const reducer = (state, action) => {
         }
         case 'LOGIN': {
             const { user } = action.payload
-
             return {
                 ...state,
                 isAuthenticated: true,
@@ -58,12 +59,27 @@ const reducer = (state, action) => {
             }
         }
         case 'REGISTER': {
-            const { user } = action.payload
-
+            const { message } = action.payload
             return {
                 ...state,
-                isAuthenticated: true,
-                user,
+                isAuthenticated: false,
+                message,
+            }
+        }
+        case 'FORGOT_PASSWORD': {
+            const { message } = action.payload
+            return {
+                ...state,
+                isAuthenticated: false,
+                forgotPassMessage: message,
+            }
+        }
+        case 'RESET_PASSWORD': {
+            const { message } = action.payload
+            return {
+                ...state,
+                isAuthenticated: false,
+                resetPassMessage: message,
             }
         }
         default: {
@@ -78,13 +94,14 @@ const AuthContext = createContext({
     login: () => Promise.resolve(),
     logout: () => { },
     register: () => Promise.resolve(),
+    forgotPassword: () => Promise.resolve(),
 })
 
 export const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState)
 
     const login = async (email, password) => {
-        const response = await axios.post('/api/auth/login', {
+        const response = await axios.post(`${API_URL}/api/auth/login`, {
             email,
             password,
         })
@@ -101,20 +118,44 @@ export const AuthProvider = ({ children }) => {
     }
 
     const register = async (email, username, password) => {
-        const response = await axios.post('/api/auth/register', {
+        const response = await axios.post(`${API_URL}/api/auth/register`, {
             email,
             username,
             password,
         })
 
-        const { accessToken, user } = response.data
-
-        setSession(accessToken)
-
+        const { message } = response.data
         dispatch({
             type: 'REGISTER',
             payload: {
-                user,
+                message,
+            },
+        })
+    }
+
+    const forgotPassword = async (email) => {
+        const response = await axios.post(`${API_URL}/api/auth/forgot-password`, {
+            email
+        })
+
+        const { message } = response.data
+        dispatch({
+            type: 'FORGOT_PASSWORD',
+            payload: {
+                message,
+            },
+        })
+    }
+
+    const resetPassword = async (password, c_password, verification_code) => {
+        const response = await axios.post(`${API_URL}/api/auth/reset-password`, {
+            verification_code, password, c_password
+        })
+        const { message } = response.data
+        dispatch({
+            type: 'RESET_PASSWORD',
+            payload: {
+                message,
             },
         })
     }
@@ -131,7 +172,7 @@ export const AuthProvider = ({ children }) => {
 
                 if (accessToken && isValidToken(accessToken)) {
                     setSession(accessToken)
-                    const response = await axios.get('/api/auth/profile')
+                    const response = await axios.get(`${API_URL}/api/auth/profile`)
                     const { user } = response.data
 
                     dispatch({
@@ -175,6 +216,8 @@ export const AuthProvider = ({ children }) => {
                 login,
                 logout,
                 register,
+                forgotPassword,
+                resetPassword,
             }}
         >
             {children}

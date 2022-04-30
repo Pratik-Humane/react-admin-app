@@ -1,9 +1,9 @@
 import useAuth from 'app/hooks/useAuth'
 import React, { useState } from 'react'
-import { Box, styled } from '@mui/system'
+import { Box, styled, useTheme } from '@mui/system'
 import { useNavigate } from 'react-router-dom'
-import { Span } from 'app/components/Typography'
-import { Card, Checkbox, FormControlLabel, Grid, Button } from '@mui/material'
+import { Span, Paragraph } from 'app/components/Typography'
+import { Card, Checkbox, FormControlLabel, Grid, Button, CircularProgress } from '@mui/material'
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
 
 const FlexBox = styled(Box)(() => ({
@@ -35,10 +35,19 @@ const JWTRegister = styled(JustifyBox)(() => ({
     },
 }))
 
+const StyledProgress = styled(CircularProgress)(() => ({
+    position: 'absolute',
+    top: '6px',
+    left: '25px',
+}))
+
 const JwtRegister = () => {
     const navigate = useNavigate()
     const [state, setState] = useState({})
-    const { register } = useAuth()
+    const { palette } = useTheme()
+    const [loading, setLoading] = useState(false)
+    const [errorMessage, setErrorMessage] = useState('')
+    const { register, message } = useAuth()
 
     const handleChange = ({ target: { name, value } }) => {
         setState({
@@ -47,12 +56,14 @@ const JwtRegister = () => {
         })
     }
 
-    const handleFormSubmit = (event) => {
+    const handleFormSubmit = async (event) => {
+        setLoading(true)
         try {
-            register(state.email, state.username, state.password)
-            navigate('/')
+            await register(state.email, state.username, state.password)
+            setLoading(false)
         } catch (e) {
-            console.log(e)
+            setErrorMessage(e.message)
+            setLoading(false)
         }
     }
 
@@ -72,6 +83,16 @@ const JwtRegister = () => {
                     </Grid>
                     <Grid item lg={7} md={7} sm={7} xs={12}>
                         <Box p={4} height="100%">
+                            {errorMessage && (
+                                <Paragraph sx={{ color: palette.error.main, marginBottom: 2 }}>
+                                    {errorMessage}
+                                </Paragraph>
+                            )}
+                            {message && (
+                                <Paragraph sx={{ color: palette.success.main, marginBottom: 2 }}>
+                                    {message}
+                                </Paragraph>
+                            )}
                             <ValidatorForm onSubmit={handleFormSubmit}>
                                 <TextValidator
                                     sx={{ mb: 3, width: '100%' }}
@@ -140,10 +161,16 @@ const JwtRegister = () => {
                                     >
                                         Sign up
                                     </Button>
+                                    {loading && (
+                                        <StyledProgress
+                                            size={24}
+                                            className="buttonProgress"
+                                        />
+                                    )}
                                     <Span sx={{ mr: 1, ml: '20px' }}>or</Span>
                                     <Button
                                         sx={{ textTransform: 'capitalize' }}
-                                        onClick={() => navigate("/session/signin")}
+                                        onClick={() => navigate("/auth/signin")}
                                     >
                                         Sign in
                                     </Button>

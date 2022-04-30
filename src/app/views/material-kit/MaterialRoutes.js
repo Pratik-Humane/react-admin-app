@@ -58,7 +58,7 @@ const materialRoutes = [
         element: <AppSlider />,
     },
     {
-        path: '/material/autocomplete',
+        path: '/app/autocomplete',
         element: <AppAutoComplete />,
     },
     {

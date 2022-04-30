@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Box, styled } from '@mui/system'
+import useAuth from 'app/hooks/useAuth'
+import { Box, styled, useTheme } from '@mui/system'
 import { useNavigate } from 'react-router-dom'
-import { Span } from 'app/components/Typography'
-import { Card, Grid, Button } from '@mui/material'
+import { Span, Paragraph } from 'app/components/Typography'
+import { Card, Grid, Button, CircularProgress } from '@mui/material'
 import { TextValidator, ValidatorForm } from 'react-material-ui-form-validator'
 
 const FlexBox = styled(Box)(() => ({
@@ -25,6 +26,12 @@ const IMG = styled('img')(() => ({
     width: '100%',
 }))
 
+const StyledProgress = styled(CircularProgress)(() => ({
+    position: 'absolute',
+    top: '99px',
+    left: '81px',
+}))
+
 const ForgotPasswordRoot = styled(JustifyBox)(() => ({
     background: '#1A2038',
     minHeight: '100vh !important',
@@ -37,8 +44,11 @@ const ForgotPasswordRoot = styled(JustifyBox)(() => ({
 
 const ForgotPassword = () => {
     const navigate = useNavigate()
+    const { palette } = useTheme()
     const [state, setState] = useState({})
-
+    const [loading, setLoading] = useState(false)
+    const { forgotPassword, forgotPassMessage } = useAuth()
+    const [errorMessage, setErrorMessage] = useState('')
     const handleChange = ({ target: { name, value } }) => {
         setState({
             ...state,
@@ -46,8 +56,16 @@ const ForgotPassword = () => {
         })
     }
 
-    const handleFormSubmit = (event) => {
-        console.log(state)
+    const handleFormSubmit = async (event) => {
+        event.preventDefault()
+        setLoading(true)
+        try {
+            await forgotPassword(state.email)
+            setLoading(false)
+        } catch (e) {
+            setErrorMessage(e.message)
+            setLoading(false)
+        }
     }
 
     let { email } = state
@@ -66,6 +84,16 @@ const ForgotPassword = () => {
                     </Grid>
                     <Grid item lg={7} md={7} sm={7} xs={12}>
                         <ContentBox>
+                            {errorMessage && (
+                                <Paragraph sx={{ color: palette.error.main, marginBottom: 2 }}>
+                                    {errorMessage}
+                                </Paragraph>
+                            )}
+                            {forgotPassMessage && (
+                                <Paragraph sx={{ color: palette.success.main, marginBottom: 2 }}>
+                                    {forgotPassMessage}
+                                </Paragraph>
+                            )}
                             <ValidatorForm onSubmit={handleFormSubmit}>
                                 <TextValidator
                                     sx={{ mb: 3, width: '100%' }}
@@ -78,7 +106,7 @@ const ForgotPassword = () => {
                                     value={email || ''}
                                     validators={['required', 'isEmail']}
                                     errorMessages={[
-                                        'this field is required',
+                                        'email is required',
                                         'email is not valid',
                                     ]}
                                 />
@@ -87,13 +115,20 @@ const ForgotPassword = () => {
                                         variant="contained"
                                         color="primary"
                                         type="submit"
+                                        disabled={loading}
                                     >
                                         Reset Password
                                     </Button>
+                                    {loading && (
+                                        <StyledProgress
+                                            size={24}
+                                            className="buttonProgress"
+                                        />
+                                    )}
                                     <Span sx={{ mr: 1, ml: '16px' }}>or</Span>
                                     <Button
                                         sx={{ textTransform: 'capitalize' }}
-                                        onClick={() => navigate("/session/signin")}
+                                        onClick={() => navigate("/auth/signin")}
                                     >
                                         Sign in
                                     </Button>

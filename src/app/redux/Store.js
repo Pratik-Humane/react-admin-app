@@ -1,9 +1,12 @@
 import thunk from 'redux-thunk'
 import { createStore, applyMiddleware, compose } from 'redux'
+import createSagaMiddleware from 'redux-saga'
 import RootReducer from './reducers/RootReducer'
+import rootSaga from './sagas/rootSaga'
 
 const initialState = {}
-const middlewares = [thunk]
+const sagaMiddleware = createSagaMiddleware()
+const middlewares = [thunk, sagaMiddleware]
 let devtools = (x) => x
 
 if (
@@ -20,3 +23,5 @@ export const Store = createStore(
     initialState,
     compose(applyMiddleware(...middlewares), devtools)
 )
+
+sagaMiddleware.run(rootSaga)
