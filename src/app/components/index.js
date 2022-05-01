@@ -36,6 +36,7 @@ export { default as PreviewImage } from './common/PreviewImage'
 export { default as InputCheckBox } from './common/InputCheckBox'
 export { default as RadioButton } from './common/RadioButton'
 export { default as SelectInput } from './common/SelectInput'
+export { default as FlashMessage } from './common/FlashMessage'
 
 export { default as MatxLogo } from './MatxLogo/MatxLogo'
 export { default as FacebookIcon } from './icons/FacebookIcon'

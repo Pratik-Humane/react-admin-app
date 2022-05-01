@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Avatar, ListItemIcon, ListItemText, List, ListItem, Box } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { Button } from 'app/components'
+import { Button, FlashMessage } from 'app/components'
 
 const ProfileBox = styled('div')(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
@@ -24,6 +24,7 @@ const UserView = ({ user, onClick }) => {
     return (
 
         <Grid container>
+            {user?.message && <FlashMessage message={user?.message} type='success' isOpen={true} />}
             <Box component="div">
                 <Button variant="contained" onClick={onClick}>Edit Profile</Button>
             </Box>
@@ -43,6 +44,14 @@ const UserView = ({ user, onClick }) => {
                         </ProfileTitle>
                         <ProfileDescription
                             primary={user.email}
+                        />
+                    </ListItem>
+                    <ListItem>
+                        <ProfileTitle>
+                            Mobile
+                        </ProfileTitle>
+                        <ProfileDescription
+                            primary={user.mobile}
                         />
                     </ListItem>
                     <ListItem>

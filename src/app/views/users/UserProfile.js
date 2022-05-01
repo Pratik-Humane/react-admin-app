@@ -1,5 +1,5 @@
 import React from 'react';
-import UserProfileView from "app/components/users/UserProfileView"
+import UserProfileView from "app/modules/users/UserProfileView"
 
 const UserProfile = () => {
     return <UserProfileView />

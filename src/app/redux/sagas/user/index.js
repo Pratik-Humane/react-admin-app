@@ -1,1 +1,1 @@
-export { default as watcherUserSaga } from './userSaga'
+export { default as userSaga } from './userSaga'

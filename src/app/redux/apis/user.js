@@ -6,3 +6,9 @@ export const fetchUserProfile = () => {
         .then((res) => res.data.user)
         .catch(error => { throw error })
 }
+
+export const postUpdateUserProfile = (payload) => {
+    return axios.post(`${API_URL}/api/update-profile`, payload)
+        .then((res) => res.data)
+        .catch(error => { throw error })
+}

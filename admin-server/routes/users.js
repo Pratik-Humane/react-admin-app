@@ -56,9 +56,9 @@ router.post("/update-profile", upload.single("avatar"), auth, async (req, res) =
       { useFindAndModify: false }
     ).exec();
     if (update) {
-      res.status(200).json({ message: "Updated successfully" });
+      res.status(200).json({ message: "Profile Updated successfully" });
     } else {
-      res.status(400).json({ message: "Update Failed!!" });
+      res.status(400).json({ message: "Profile Update Failed!!" });
     }
   } catch (error) {
     console.log(error.message);
@@ -110,7 +110,7 @@ router.post("/auth/login", async (req, res) => {
 // get login user innformation
 router.get("/auth/profile", auth, async (req, res) => {
   try {
-    let user = await User.findOne({ _id: req.body.userid }).select('_id avatar email username role').lean();
+    let user = await User.findOne({ _id: req.body.userid }).select('_id avatar email mobile username role gender').lean();
     if (user) {
       if (user.avatar) {
         user.avatar = `${process.env.API_URL}/uploads/${user.avatar}`;
